@@ -1,4 +1,5 @@
 function [t] = l1minimization(A,f,lambda)
+% TODO: 这个函数实现有问题，结果很奇怪
 % min ||At+f||_1+lambda||t||_2
 
 t_start = tic;
