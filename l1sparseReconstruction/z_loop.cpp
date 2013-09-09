@@ -3,7 +3,7 @@
 #include <mex.h>
 #include <omp.h>
 #include <iostream>
-#include <windows.h>
+// #include <windows.h>
 #include <time.h>
 #include <assert.h>
 using namespace std;
@@ -141,9 +141,9 @@ mxArray* AB(mxArray* A,mxArray* B){
 }
 
 mxArray* update_x(mxArray* A, mxArray* b, double kappa, mxArray* V, mxArray* Dig){
-    LARGE_INTEGER  large_interger;  
-    LONGLONG dff;  
-    __int64  c1, c2;  
+    // LARGE_INTEGER  large_interger;  
+    // LONGLONG dff;  
+    // __int64  c1, c2;  
 
     // QueryPerformanceFrequency(&large_interger);  
     // dff = large_interger.QuadPart;  

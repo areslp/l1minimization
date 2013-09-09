@@ -11,7 +11,7 @@ if k~=1
     I=rgb2gray(I);
 end
 I=imnoise(I,'gaussian',0,0.01);
-imwrite(I,'noise_input.png');
+% imwrite(I,'noise_input.png');
 b=reshape(I,m*n,1);
 [D]=DiffOper3(m,n,1);
 % figure;
@@ -20,8 +20,8 @@ b=reshape(I,m*n,1);
 % pause;
 lambda=0.2;
 % x=total_variation_vec(b,lambda,1,D);
-% x=l1_total_variation_vec(b,lambda,1,D);
-x=total_variation(b,lambda,D);
+x=l1_total_variation_vec(b,lambda,1,D);
+% x=total_variation(b,lambda,D);
 x=(x-min(x))/(max(x)-min(x));
 OUT=reshape(x,m,n);
 imwrite(OUT,'out.jpg');

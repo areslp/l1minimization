@@ -4,10 +4,7 @@ close all;
 
 % matlabpool(2)
 
-% I=imread('color_small.png');
-I=imread('color.jpg');
-% I=imread('1s.png');
-% I=imread('1.jpg');
+I=imread('lena512color.tiff');
 I=im2double(I);
 
 I_noisy = double(I) + 0.1.*randn(size(I));
@@ -16,13 +13,13 @@ I_noisy = double(I) + 0.1.*randn(size(I));
 [m,n,k]=size(I);
 assert(m==n);
 b=color2vector(I_noisy);
-[D]=DiffOper3(m,n);
+[D]=DiffOper3(m,n,3);
 size(D)
 % figure;
 % imagesc(D);
 % colormap('gray');
 % pause;
-lambda=0.08;
+lambda=0.2;
 
 % METHOD1
 % x=group_lasso_wrapper(D, speye(m*n*k*4), D*b, lambda);
@@ -33,7 +30,7 @@ lambda=0.08;
 % OUT=vec2color(xx,m,n);
 
 % METHOD2
-xx=total_variation_vec(b,lambda,3,D,2);
+xx=l1_total_variation_vec(b,lambda,3,D);
 xx=(xx-min(xx))/(max(xx)-min(xx));
 OUT=vec2color(xx,m,n);
 
@@ -47,47 +44,6 @@ subplot(1,3,2);
 imshow(I_noisy);
 subplot(1,3,3);
 imshow(OUT);
-
-% matlabpool close;
-
-function [B]= DiffOper3(m,n)
-% except the last column
-E0=zeros(m*(n-1)*3,2);
-% except the last row
-E2=zeros((m-1)*n*3,2);
-% the last column
-E1=zeros(3*m,2);
-% last row
-E3=zeros(3*n,2);
-index1=1;
-index2=1;
-for i=1:m
-    % each row
-    gidx=(i-1)*3*n+1;
-    assert(gidx>0);
-    E0(index1:index1+3*(n-1)-1,1)=linspace(gidx,gidx+3*(n-1)-1,3*(n-1));
-    index1=index1+3*(n-1);
-
-    % last column
-    E1((i-1)*3+1:(i-1)*3+3,1)=linspace(3*i*n-2,3*i*n,3);
-
-    % last row
-    if i==m
-        E3(:,1)=linspace(gidx,gidx+3*n-1,3*n);
-    else
-        E2(index2:index2+3*n-1,1)=linspace(gidx,gidx+3*n-1,3*n);
-        index2=index2+3*n;
-    end
-end
-E0(:,2)=E0(:,1)+3;
-E1(:,2)=E1(:,1)-3;
-E2(:,2)=E2(:,1)+3*n;
-E3(:,2)=E3(:,1)-3*n;
-E=[E0;E1;E2;E3];
-rowe=size(E,1);
-assert(rowe==2*m*n*3);
-B = sparse( [1:rowe, 1:rowe], [E(:,1); E(:,2)],...
-    [ones(rowe, 1), -ones(rowe, 1)], rowe, m*n*3);
 
 % vector valued
 % use kdtree to find the nearest neighbor
@@ -132,3 +88,39 @@ for i=1:m
     end
 end
 
+function [B]= DiffOper3(m,n,k)
+% except the last column
+E0=zeros(m*(n-1)*k,2);
+% except the last row
+E2=zeros((m-1)*n*k,2);
+% the last column
+E1=zeros(k*m,2);
+% last row
+E3=zeros(k*n,2);
+index1=1;
+index2=1;
+for i=1:m
+    % each row
+    gidx=(i-1)*k*n+1; % 每行第一个像素的起始索引
+    assert(gidx>0);
+    E0(index1:index1+k*(n-1)-1,1)=linspace(gidx,gidx+k*(n-1)-1,k*(n-1)); % matlab里从i开始num个数这么写：i:i+num-1
+    index1=index1+k*(n-1);
+    % last column
+    E1((i-1)*k+1:(i-1)*k+k,1)=linspace(k*i*n-k+1,k*i*n,k);
+    % last row
+    if i==m
+        E3(:,1)=linspace(gidx,gidx+k*n-1,k*n);
+    else
+        E2(index2:index2+k*n-1,1)=linspace(gidx,gidx+k*n-1,k*n);
+        index2=index2+k*n;
+    end
+end
+E0(:,2)=E0(:,1)+k;
+E1(:,2)=E1(:,1)-k;
+E2(:,2)=E2(:,1)+k*n;
+E3(:,2)=E3(:,1)-k*n;
+E=[E0;E1;E2;E3];
+rowe=size(E,1);
+% assert(rowe==2*m*n*k);
+B = sparse( [1:rowe, 1:rowe], [E(:,1); E(:,2)],...
+    [ones(rowe, 1), -ones(rowe, 1)], rowe, m*n*k);

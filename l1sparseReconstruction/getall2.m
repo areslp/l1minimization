@@ -2,7 +2,8 @@ clear all;
 close all;
 
 % data=load('double-torus1.xyzn');
-data=load('double-torus2.xyzn');
+% data=load('double-torus2.xyzn');
+data=load('consist_noise_0.5_double-torus1.xyzn');
 % data=load('consist_out.xyzn');
 % data=load('noise_0.2_double-torus2.xyzn');
 % data=load('fandisk.xyzn');

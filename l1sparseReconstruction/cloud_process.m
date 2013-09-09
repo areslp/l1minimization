@@ -27,13 +27,11 @@ for i=1:length(points)
 end
 fclose(ff1);
 
-% save NormalStep.mat normals points;
-% load NormalStep.mat normals points;
 return;
 
 % position optimization
-k=6;
-lambda=0.1;
+k=12;
+lambda=0.2;
 [points] = optimizePos(points, normals, k, lambda);
 
 % output
