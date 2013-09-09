@@ -1,12 +1,13 @@
 function [points,normals] = cloud_process(points,normals)
 k=6;
 % lambda=0; % 无噪声
-lambda=0.05; % 0.5噪声
+lambda=0.2; % 0.5噪声
 
 % ==========================================================================================
 % ADMM solver, no ||N_in^i-N_out^i||\leq gamma constraints
-normals = normalOpt(points, normals, lambda, k, true);
+normals = normalOpt(points, normals, lambda, k, false);
 normals = normalize_normals(normals);
+lambda=0.1;
 for i=1:2
     normals = normalOpt(points, normals, lambda, k, true);
     normals = normalize_normals(normals);
@@ -28,7 +29,7 @@ fclose(ff1);
 
 % save NormalStep.mat normals points;
 % load NormalStep.mat normals points;
-% return;
+return;
 
 % position optimization
 k=6;

@@ -2,9 +2,9 @@ function [] = image_tv()
 clear all;
 close all;
 
-% I=imread('Lena512.png');
+I=imread('Lena512.png');
 % I=imread('Cameraman.bmp');
-I=imread('Barbara.png');
+% I=imread('Barbara.png');
 I=im2double(I);
 [m,n,k]=size(I);
 if k~=1
@@ -18,9 +18,11 @@ b=reshape(I,m*n,1);
 % imagesc(D);
 % colormap('gray');
 % pause;
-lambda=0.07;
-x=total_variation_vec(b,lambda,1,D);
-% x=total_variation(b,lambda,D);
+lambda=0.2;
+% x=total_variation_vec(b,lambda,1,D);
+% x=l1_total_variation_vec(b,lambda,1,D);
+x=total_variation(b,lambda,D);
+x=(x-min(x))/(max(x)-min(x));
 OUT=reshape(x,m,n);
 imwrite(OUT,'out.jpg');
 figure;

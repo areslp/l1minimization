@@ -59,7 +59,7 @@ AtA=A'*A;
 
 % ADMM solver
 
-rho = 1.9;
+rho = 10;
 x = zeros(n,1);
 z = zeros(k,1);
 u = zeros(k,1);

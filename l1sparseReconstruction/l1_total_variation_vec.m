@@ -9,10 +9,6 @@ RELCHG   = 1e-4;
 % Data preprocessing
 [m,n]=size(D);
 
-% check that ni divides in to n
-if (rem(n,ni) ~= 0)
-    error('invalid block size');
-end
 % number of subsystems
 N = m/ni;
 % ADMM solver
@@ -21,8 +17,8 @@ rho = 10;
 alpha = 1.4;    % over-relaxation parameter
 
 x = zeros(n,1);
-z = zeros(ni,N); %就是\bar z
-u = zeros(ni,N);
+z = zeros(m,1); %就是\bar z
+u = zeros(m,1);
 
 bf=norm(b,'fro');
 % T1=speye(n)+rho*D'*D;
@@ -38,15 +34,10 @@ for k = 1:MAX_ITER
 
     % z-update
     Dx=D*x;
-    Dx=reshape(Dx,ni,N);
     % tic
     zold = z;
     % 显示解
-    % for i = 1:N
-        % z(:,i)=vst(lambda/rho, Dx(:,i)-u(:,i));
-    % end
-    z=z_loop(Dx-u,lambda/rho);
-    % norm(z) 
+    z=wthresh(Dx-u,'s',lambda/rho);
     % t=toc;
     % fprintf(1,'update z: %f\n',t);
 

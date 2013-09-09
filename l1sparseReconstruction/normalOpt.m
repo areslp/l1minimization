@@ -13,7 +13,7 @@ end
 norm(D*N,1)
 
 % [x]=total_variation(N,lambda,D);
-[x]=total_variation_vec(N,lambda,dim,D,k);
+[x]=total_variation_vec(N,lambda,dim,D);
 
 norm(D*x,1)
 
