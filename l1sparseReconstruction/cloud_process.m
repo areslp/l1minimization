@@ -1,24 +1,17 @@
 function [points,normals] = cloud_process(points,normals)
-k=6;
-% lambda=0; % 无噪声
-lambda=0.2; % 0.5噪声
+k=3;
+lambda=0.2;
 
+[A,E]=kdtree_adj_vec(points,k,3); % k变化了，需要重新计算
 % ==========================================================================================
 % ADMM solver, no ||N_in^i-N_out^i||\leq gamma constraints
-normals = normalOpt(points, normals, lambda, k, false);
-normals = normalize_normals(normals);
-lambda=0.1;
-for i=1:2
-    normals = normalOpt(points, normals, lambda, k, true);
+% normals = normalOpt(points, normals, lambda, k, false, A , E);
+% normals = normalize_normals(normals);
+lambda=10;
+for i=1:1
+    normals = normalOpt(points, normals, lambda, k, true, A, E);
     normals = normalize_normals(normals);
 end
-
-% CVX solver, the same as paper
-% [ normals_new] = cvx_wrapper(points, normals, k, lambda, false);
-% normals_new = normalize_normals(normals_new);
-% normals=normals_new;
-% [normals_new] = cvx_wrapper(points, normals, k, lambda, true);
-% normals_new = normalize_normals(normals_new);
 
 % ===========================================================================================
 ff1=fopen('out_normal.xyzn','w');
@@ -30,9 +23,8 @@ fclose(ff1);
 return;
 
 % position optimization
-k=12;
 lambda=0.2;
-[points] = optimizePos(points, normals, k, lambda);
+[points] = optimizePos(points, normals, k, lambda, A, E);
 
 % output
 ff=fopen('out.xyzn','w');

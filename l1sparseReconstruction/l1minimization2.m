@@ -1,7 +1,7 @@
 function [x]=l1minimization2(W,D,b,lambda)
 % min_x 1/2||x-b||_2^2+\lambda \sum||w_i'*D_i*x||_1
 
-% W kx1 cell, each cell 3x1, kx3
+% W knx3
 % D 3kxn
 
 t_start = tic;
@@ -13,7 +13,7 @@ RELTOL  = 1e-2;
 RELCHG   = 1e-4;
 
 % Data preprocessing
-k=size(W,1);
+kn=size(W,1);
 n=size(D,2);
 % W kx3k
 % w1 0  0 ...
@@ -28,7 +28,7 @@ n=size(D,2);
 % W=blkdiag(c{:});
 % disp('blkdiag end');
 
-W=W'; % 3xk
+W=W'; % 3xkn
 
 % 这个方法绝妙
 [r,c] = size(W);
@@ -43,7 +43,6 @@ disp(['size D:' num2str(size(D))]);
 W=W';
 
 A=W*D;
-size(A)
 
 % A的计算方法
 % tic
@@ -61,13 +60,13 @@ AtA=A'*A;
 
 rho = 10;
 x = zeros(n,1);
-z = zeros(k,1);
-u = zeros(k,1);
+z = zeros(kn,1);
+u = zeros(kn,1);
 
 bf=norm(b,'fro');
 % T1=speye(n)+rho*AtA;
 
-for k = 1:MAX_ITER
+for iter = 1:MAX_ITER
     zold=z;
     z=wthresh(A*x-u,'s',lambda/rho);
 
@@ -76,10 +75,8 @@ for k = 1:MAX_ITER
     x=(speye(n)+rho*AtA)\(b+(rho*A'*(z+u)));
 
     u= u + z - A*x;
-    % rho=min(1e10,1.9*rho);
 
     % convergence
-    % 第一次迭代就全部都=0，这是怎么回事？
     relchg=max(norm(x-xold,'fro'),norm(z-zold,'fro'))/bf;
     reltol=norm(z-A*x,'fro')/bf;
 
