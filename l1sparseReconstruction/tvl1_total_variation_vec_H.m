@@ -13,8 +13,8 @@ REL=1e-2;
 [m,n]=size(D);
 
 % ADMM solver
-rho1 = 1; % z=Dx
-rho2 = 1; % y=x-b
+rho1 = 10; % z=Dx
+rho2 = 10; % y=x-b
 mu=10;
 alpha = 1.6;    % over-relaxation parameter
 
@@ -27,9 +27,12 @@ u2 = zeros(n,1);
 I=speye(n);
 DtD=D'*D;
 HtH=H'*H;
+L=(rho2*HtH+rho1*DtD);
+F=linfactor(L);
 for iter = 1:MAX_ITER
     xold=x;
-    x=(rho2*HtH+rho1*DtD)\(rho2*H'*(b+y-u2)+rho1*D'*(z+u1));
+    R=(rho2*H'*(b+y-u2)+rho1*D'*(z+u1));
+    x=linfactor(F,R);
 
     Dx=D*x;
     zold = z;

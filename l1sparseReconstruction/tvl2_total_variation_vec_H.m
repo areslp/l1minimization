@@ -6,25 +6,31 @@ QUIET    = 0;
 MAX_ITER = 1000;
 RELPRI  = 0;
 RELDUAL   = 0;
-ABS=1e-3;
-REL=1e-3;
+ABS=1e-2;
+REL=1e-2;
 % Data preprocessing
 [m,n]=size(D);
 
-rho = 1;
+rho = 10;
 
 x = zeros(n,1);
 z = zeros(m,1); %就是\bar z
 u = zeros(m,1);
 
-DtD=D'*D;
+Dt=D';
+DtD=Dt*D;
+Ht=H';
+HtH=Ht*H;
+L=HtH+rho*DtD;
+F=linfactor(L);
 for iter = 1:MAX_ITER
     xold=x;
-    x=(H'*H+rho*DtD)\(H'*b+rho*D'*(z+u));
+    R=Ht*b+rho*Dt*(z+u);
+    x=linfactor(F,R);
 
     Dx=D*x;
     zold = z;
-    z=wthresh(D*x-u,'s',lambda/rho);
+    z=wthresh(Dx-u,'s',lambda/rho);
 
     u= u + z - D*x;
 

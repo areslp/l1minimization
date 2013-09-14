@@ -1,17 +1,17 @@
 function [points,normals] = cloud_process(points,normals)
-k=3;
-lambda=0.2;
+k=6;
+lambda=3;
 
 [A,E]=kdtree_adj_vec(points,k,3); % k变化了，需要重新计算
 % ==========================================================================================
 % ADMM solver, no ||N_in^i-N_out^i||\leq gamma constraints
-% normals = normalOpt(points, normals, lambda, k, false, A , E);
-% normals = normalize_normals(normals);
-lambda=10;
-for i=1:1
-    normals = normalOpt(points, normals, lambda, k, true, A, E);
-    normals = normalize_normals(normals);
-end
+normals = normalOpt(points, normals, lambda, k, false, A , E);
+normals = normalize_normals(normals);
+% lambda=1;
+% for i=1:1
+    % normals = normalOpt(points, normals, lambda, k, true, A, E);
+    % normals = normalize_normals(normals);
+% end
 
 % ===========================================================================================
 ff1=fopen('out_normal.xyzn','w');
