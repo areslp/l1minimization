@@ -125,7 +125,14 @@ function p = objective(A, b, lambda, cum_part, x, z)
 end
 
 function z = shrinkage(x, kappa)
-    z = pos(1 - kappa/norm(x))*x;
+    % z = pos(1 - kappa/norm(x))*x;
+    if norm(x)==0
+        z=0;
+        return;
+    end
+    t = (1-kappa/norm(x));
+    t = max(t,0);
+    z = t*x;
 end
 
 function [L U] = factor(A, rho)
