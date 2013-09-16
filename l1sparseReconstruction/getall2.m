@@ -29,5 +29,5 @@ write_mesh(points,normals,'blurred_mesh.xyzn');
 points(null_normal_idx,:)=[];
 normals(null_normal_idx,:)=[];
 write_mesh(points,normals,'not_null_mesh.xyzn');
-% cloud_process(points,normals,H);
-cloud_process2(points,normals,H);
+cloud_process(points,normals,H);
+% cloud_process2(points,normals,H);

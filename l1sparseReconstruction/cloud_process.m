@@ -1,6 +1,6 @@
 function [points,normals] = cloud_process(points,normals,H)
 k=3;
-lambda=0.05;
+lambda=0.2;
 n=size(points,1);
 dim=size(points,2);
 
