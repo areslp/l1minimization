@@ -15,8 +15,8 @@ for i = 1:n
         g_index_i=dim*(i-1)+1;
         g_index_idx=dim*(idx-1)+1;
         % the g_index for idx
-        E(dim*k*(i-1)+dim*(j-1)+1:dim*k*(i-1)+dim*(j-1)+3,1)=linspace(g_index_i,g_index_i+2,3);
-        E(dim*k*(i-1)+dim*(j-1)+1:dim*k*(i-1)+dim*(j-1)+3,2)=linspace(g_index_idx,g_index_idx+2,3);
+        E(dim*k*(i-1)+dim*(j-1)+1:dim*k*(i-1)+dim*(j-1)+dim,1)=linspace(g_index_i,g_index_i+dim-1,dim);
+        E(dim*k*(i-1)+dim*(j-1)+1:dim*k*(i-1)+dim*(j-1)+dim,2)=linspace(g_index_idx,g_index_idx+dim-1,dim);
     end
 end
 kdtree_delete(tree);

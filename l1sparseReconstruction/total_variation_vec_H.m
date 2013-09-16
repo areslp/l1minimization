@@ -1,4 +1,4 @@
-function [x, history] = group_lasso_feat_split(b, lambda, dim, D)
+function [x, history] = group_lasso_feat_split(b, lambda, dim, D, H)
 t_start = tic;
 % Global constants and defaults
 
@@ -17,17 +17,23 @@ x = zeros(n,1);
 z = zeros(m,1);
 u = zeros(m,1);
 
-I=speye(n);
 Dt=D';
 DtD=D'*D;
-L=I+rho*DtD;
+Ht=H';
+HtH=Ht*H;
+L=HtH+rho*DtD;
+% LtL=L'*L;
+Htb=Ht*b;
 F=linfactor(L);
 for iter = 1:MAX_ITER
+    % tic
     % x-update (to be done in parallel)
     xold=x;
-    R=b+rho*Dt*(z+u);
+    R=Htb+rho*Dt*(z+u);
     % x=L\R;
     x=linfactor(F,R);
+    % x=Landweber_iteration(L,R,LtL,100);
+    % toc
 
     % z-update
     Dx=D*x;

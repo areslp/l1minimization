@@ -32,7 +32,7 @@ clear all;
  
 N           = 100;     % Signal sample count
 lambda      = 0.2;     % Total-variation weight
-sigma       = 3.0;     % PSF sigma for generating blurred input
+sigma       = 9.0;     % PSF sigma for generating blurred input
 noise       = 0.05;    % Gaussian-noise sigma
  
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -60,7 +60,7 @@ end
 M = sparse( M );
  
 
-M=generate_PSF_matrix(sigma,N);
+% M=generate_PSF_matrix(sigma,N);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Generate noisy and blurred synthetic input %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -69,7 +69,8 @@ input = zeros( N, 1 );                  % start with zeros
 input(floor(N/4):ceil(3*N/4),:) = 1.0;  % make a center region at 1.0
 % plot( input, 'b-+' );
 % hold on;
-blur = M * input + noise*(randn(N,1));  % blur the input by the psf
+% blur = M * input + noise*(randn(N,1));  % blur the input by the psf
+blur = M * input;  % blur the input by the psf
 % blur = input + noise*(randn(N,1));  % blur the input by the psf
 % M=eye(size(M)); % TODO: 测试不加blur时，是否会出现smooth
 % plot(blur,'.-g');
@@ -95,13 +96,8 @@ A(N,N-1)=1; % use a backward difference for the final point
 
 % 测试自己代码是否会有模糊的效果
 lambda=0.2;
-% x=tvl2_total_variation_vec_H(blur,lambda,A,M);
-x=tvl2_total_variation_vec(blur,lambda,A);
-figure;
-hold on;
-plot( blur, 'r-o' );
-plot( x, 'b-o' );
-hold off;
+xx=tvl2_total_variation_vec_H(blur,lambda,A,M);
+% x=tvl2_total_variation_vec(blur,lambda,A);
 
 
  
@@ -166,6 +162,8 @@ end
  
 figure;
 hold on;
-plot( blur, 'r-o' );
+% plot( blur, 'r-o' );
 plot( x, 'b-o' );
+plot( input, 'g-x' );
+plot( xx, 'r-*' );
 hold off;

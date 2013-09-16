@@ -1,0 +1,9 @@
+function [v] = compute_Dx(D,x,dim)
+[m,n]=size(D);
+Dx=D*x;
+kn=m/dim;
+q=reshape(Dx,dim,kn);
+q=q';
+q=sum(q.^2,2);
+q=sqrt(q);
+v=sum(q);

@@ -1,19 +1,32 @@
 clear all;
 close all;
 
-% data=load('double-torus2.xyzn');
-% data=load('consist_noise_0.5_double-torus1.xyzn');
-% data=load('noise_0.5_fandisk.xyzn');
-data=load('ori_data/double-torus1.xyzn');
+% [points,normals]=mesh_import('ori_data/double-torus1.xyzn');
+% [points,normals]=mesh_import('standard_normal.xyzn');
+[points,normals]=mesh_import('consist_out.xyzn');
 
-
-points=data(:,1:3);
-normals=data(:,4:6);
-normals = normals./repmat(sqrt(sum(normals.^2,2)),1,size(normals,2));
+n=size(points,1);
+dim=size(points,2);
+Asize=n*dim;
+smooth_kernel=9;
 
 tic
-H=compute_weighted_Laplcian(points,normals,6);
-toc
-pause;
+[i,j,v]=compute_WL(points,smooth_kernel);
+H=sparse(i+1,j+1,v,Asize,Asize);
+t=toc;
+fprintf(1,'compute blur kernel takes:%f\n',t);
 
-cloud_process(points,normals);
+% vectorize normals
+% normal_vector=reshape(normals',Asize,1); % vectorize
+% normal_vector=H*normal_vector;
+% normals=reshape(normal_vector,dim,n)';
+% normals = normalize_normals(normals);
+% write_mesh(points,normals,'blurred_mesh.xyzn');
+
+% [points,normals]=mesh_import('blurred_mesh.xyzn');
+
+[null_normal_idx,col]=find(isnan(normals)==1);
+points(null_normal_idx,:)=[];
+normals(null_normal_idx,:)=[];
+write_mesh(points,normals,'not_null_mesh.xyzn');
+cloud_process(points,normals,H);
