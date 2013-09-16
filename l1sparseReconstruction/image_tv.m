@@ -43,8 +43,6 @@ A=sparse(i+1,j+1,v,pn*dim*k,pn*dim);
 t=toc;
 fprintf(1,'compute AE takes:%f\n',t);
 % [A,E]=kdtree_adj_vec(points,k,1);
-% size(A)
-% size(H)
 D=A;
 % figure;
 % imagesc(D);
@@ -56,7 +54,8 @@ D=A;
 lambda=0.2;
 v=compute_Dx(D,b,1);
 fprintf(1,'init Dx is %f\n',v);
-x=tvl2_total_variation_vec_H(b,lambda,D,H);
+% x=tvl2_total_variation_vec_H(b,lambda,D,H);
+x=total_variation_vec_H(b,lambda,1,D,H);
 v=compute_Dx(D,x,1);
 fprintf(1,'L1 Dx is %f\n',v);
 x=(x-min(x))/(max(x)-min(x));
