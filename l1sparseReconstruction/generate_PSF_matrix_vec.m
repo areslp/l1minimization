@@ -2,7 +2,7 @@ function [A] = generate_PSF_matrix(n,m,dim)
 % 生成一个只对2维模糊的circle convolution matrix，没有考虑彩色图像的问题
 Asize=m*n*dim;
 N=dim*n;
-off=9; % A矩阵的子块矩阵有off个需要计算
+off=5; % A矩阵的子块矩阵有off个需要计算
 b0=fspecial('gaussian', [off off], 2);
 A=sparse([],[],[],Asize,Asize,Asize*off*off);
 % 计算子矩阵

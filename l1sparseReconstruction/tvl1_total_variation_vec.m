@@ -13,8 +13,8 @@ REL=1e-2;
 [m,n]=size(D);
 
 % ADMM solver
-rho1 = 10; % z=Dx
-rho2 = 10; % y=x-b
+rho1 = 1; % z=Dx
+rho2 = 1; % y=x-b
 
 x = zeros(n,1);
 z = zeros(m,1); %就是\bar z
@@ -23,10 +23,15 @@ u1 = zeros(m,1);
 u2 = zeros(n,1);
 
 I=speye(n);
-DtD=D'*D;
+Dt=D';
+DtD=Dt*D;
+L=rho2*I+rho1*DtD;
+F=linfactor(L);
 for iter = 1:MAX_ITER
     xold=x;
-    x=(rho2*I+rho1*DtD)\(rho2*(b+y-u2)+rho1*D'*(z+u1));
+    R=(rho2*(b+y-u2)+rho1*Dt*(z+u1));
+    x=linfactor(F,R);
+    % x=(rho2*I+rho1*DtD);
 
     Dx=D*x;
     zold = z;

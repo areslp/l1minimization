@@ -13,8 +13,8 @@ REL=1e-2;
 [m,n]=size(D);
 
 % ADMM solver
-rho1 = 10; % z=Dx
-rho2 = 10; % y=x-b
+rho1 = 1; % z=Dx
+rho2 = 1; % y=x-b
 mu=10;
 alpha = 1.6;    % over-relaxation parameter
 

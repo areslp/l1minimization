@@ -51,10 +51,36 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     SparseMatrix<double> A(n*dim,total_pair);
     A.reserve(VectorXi::Constant(total_pair,k+1)); //预分配空间
 
+
+    //计算平均边长
+    int kk=4;
+    double av_len=0.0;
+    for (int i=0;i<n;i++){
+        double av_len_p=0.0;
+        // get k-nearest neighbors
+        std::vector<int> pointIdxNKNSearch(kk);
+        std::vector<float> pointNKNSquaredDistance(kk);
+        kdtree.nearestKSearch (cloud->points[i], kk+1, pointIdxNKNSearch, pointNKNSquaredDistance); //排除当前点自己
+        for (int j=0;j<(int)pointNKNSquaredDistance.size();j++)
+        {
+            if (pointIdxNKNSearch[j]==i)
+            {
+                continue;
+            }
+            av_len_p+=sqrt(pointNKNSquaredDistance[j]);
+        }
+        av_len_p/=kk;
+        av_len+=av_len_p;
+    }
+    av_len/=n;
+    printf("av_len:%f\n",av_len);
+
+    double sigma=av_len;
+
     StopWatch timer;
     double t;
-    omp_set_num_threads(4);
-    #pragma omp parallel for
+    // omp_set_num_threads(4);
+    // #pragma omp parallel for
     for(int i=0;i<n;i++){
         // timer.reset();
         std::vector<int> pointIdxNKNSearch(k);
@@ -79,10 +105,16 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             {
                 continue;
             }
+            pcl::PointXYZ tp(query_point.x-cloud->points[jidx].x,query_point.y-cloud->points[jidx].y,query_point.z-cloud->points[jidx].z); 
+            double dis=sqrt(tp.x*tp.x+tp.y*tp.y+tp.z*tp.z);
+            // printf("dis:%f\n",dis);
+            double var=exp(-dis*dis/(sigma*sigma));
+            // printf("var:%f\n",var);
+            // printf("var:%f\n",var);
             for(int dd=0;dd<dim;++dd){
                 int col=(i*k+jc)*dim+dd; //这里不能用j，因为有一个continue的，j还是会++
-                A.insert(jidx*dim+dd,col)=-1;
-                A.insert(i*dim+dd,col)=1;
+                A.insert(jidx*dim+dd,col)=-var;
+                A.insert(i*dim+dd,col)=var;
                 // printf("inserting to A %d col\n",col);
             }
             jc++;

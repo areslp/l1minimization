@@ -11,8 +11,11 @@ end
 % minimize 1/2*|| x - b ||_2^2 + \lambda ||Dx||_1
 
 v0=compute_Dx(D,N,3);
-[x]=total_variation_vec(N,lambda,3,D);
-% [x]=total_variation_vec_H(N,lambda,3,D,H);
+% [x]=total_variation_vec(N,lambda,3,D);
+[x]=total_variation_vec_H(N,lambda,3,D,H);
+% [x]=tvl1_total_variation_vec_H(N,lambda,D,H);
+% [x]=tvl1_total_variation_vec(N,lambda,D);
+% [x]=tvl2_total_variation_vec(N,lambda,D);
 % [x]=tvl2_total_variation_vec_H(N,lambda,D,H);
 v=compute_Dx(D,x,3);
 fprintf(2,'init Dx is %f\n',v0);

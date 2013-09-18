@@ -3,11 +3,11 @@ t_start = tic;
 % Global constants and defaults
 
 QUIET    = 0;
-MAX_ITER = 1000;
+MAX_ITER = 5000;
 RELPRI  = 0;
 RELDUAL   = 0;
-ABS=1e-2;
-REL=1e-2;
+ABS=1e-5;
+REL=1e-5;
 % Data preprocessing
 [m,n]=size(D);
 
@@ -15,26 +15,29 @@ REL=1e-2;
 % N = m/ni;
 % ADMM solver
 
-rho = 10;
-mu=10;
+rho = 1;
 
 x = zeros(n,1);
 z = zeros(m,1); %就是\bar z
 u = zeros(m,1);
 
-% T1=speye(n)+rho*D'*D;
 I=speye(n);
-DtD=D'*D;
+Dt=D';
+DtD=Dt*D;
 for iter = 1:MAX_ITER
     xold=x;
     % x=T1\(b+rho*D'*(vec(z)+vec(u)));
-    x=(I+rho*DtD)\(b+rho*D'*(z+u));
+    x=(I+rho*DtD)\(b+rho*Dt*(z+u));
 
     Dx=D*x;
     zold = z;
     z=wthresh(Dx-u,'s',lambda/rho);
 
     u= u + z - Dx;
+    % update rho
+    if norm(z-Dx)>0.8*norm(zold-D*xold) % 0<alpha<1, alpha=0.8
+        rho=2*rho; % gamma=2
+    end
 
     % convergence
     relchg=max(norm(x-xold),norm(z-zold));

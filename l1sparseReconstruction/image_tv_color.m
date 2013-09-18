@@ -16,7 +16,8 @@ sigma=3;
 % figure;
 % imshow(G);
 % add noise
-I       = imnoise(I, 'gaussian', 0.05);
+% I       = imnoise(I, 'gaussian', 0.05);
+I = I + 0.1*randn(size(I));
 
 % image to vector
 b=color2vector(I);
@@ -30,12 +31,9 @@ b=color2vector(I);
 % imshow(I);
 
 % 直接进行模糊
-H=generate_PSF_matrix_vec(m,n,k);
-b=H*b;
-I=vec2color(b,m,n);
-% figure;
-% imshow(I);
-% pause;
+% H=generate_PSF_matrix_vec(m,n,k);
+% b=H*b;
+% I=vec2color(b,m,n);
 
 % [D,E]=image_differencial_matrix(m,n,k);
 % D=compute_weight_image(I,E); % reweighted
@@ -44,25 +42,26 @@ I=vec2color(b,m,n);
 points=fake_points_from_image(I);
 pn=size(points,1);
 dim=3;
-k=12;
+k=24;
 tic
 [i,j,v,E]=compute_AE(points,points,k,dim); % k变化了，需要重新计算
 E=E+1;
 A=sparse(i+1,j+1,v,pn*dim*k,pn*dim);
-AA = sparse( [1:1:dim*k*pn, 1:1:dim*k*pn], [E(:,1); E(:,2)],...
-    [ones(dim*k*pn, 1), -ones(dim*k*pn, 1)], dim*k*pn, dim*pn);
+% AA = sparse( [1:1:dim*k*pn, 1:1:dim*k*pn], [E(:,1); E(:,2)],...
+    % [ones(dim*k*pn, 1), -ones(dim*k*pn, 1)], dim*k*pn, dim*pn);
 t=toc;
 fprintf(1,'compute AE takes:%f\n',t);
 % [A,E]=kdtree_adj_vec(points,k,dim);
 % size(A)
 % size(H)
-D=AA;
+D=A;
 
 vc=compute_Dx(D,b0,3);
 v0=compute_Dx(D,b,3);
 lambda=0.2;
 % xx=tvl2_total_variation_vec_H(b,lambda,D,H);
-xx=total_variation_vec_H(b,lambda,3,D,H);
+xx=tvl2_total_variation_vec(b,lambda,D);
+% xx=total_variation_vec_H(b,lambda,3,D,H);
 % xx=total_variation_vec(b,lambda,3,D);
 v=compute_Dx(D,xx,3);
 fprintf(2,'correct Dx is %f\n',vc);

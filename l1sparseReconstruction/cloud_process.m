@@ -1,6 +1,6 @@
 function [points,normals] = cloud_process(points,normals,H)
-k=3;
-lambda=0.2;
+k=4;
+lambda=1;
 n=size(points,1);
 dim=size(points,2);
 
@@ -22,7 +22,7 @@ end
 
 % ===========================================================================================
 write_mesh(points,normals,'out_normal.xyzn');
-% return;
+return;
 
 % position optimization
 lambda=0.2;

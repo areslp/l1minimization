@@ -21,14 +21,21 @@ Dt=D';
 DtD=Dt*D;
 Ht=H';
 HtH=Ht*H;
-L=HtH+rho*DtD;
+% L=HtH+rho*DtD;
 Htb=Ht*b;
-F=linfactor(L);
+% FH=fftn(full(H));
+% FD=fftn(full(D));
+% L=norm(FH)*norm(FH)+rho*norm(FD)*norm(FD);
+% F=linfactor(L);
 for iter = 1:MAX_ITER
     % tic
     xold=x;
+    L=HtH+rho*DtD;
     R=Htb+rho*Dt*(z+u);
-    x=linfactor(F,R);
+    % FR=fftn(R);
+    % x=ifftn(FR);
+    % x=linfactor(F,R);
+    x=L\R;
     % toc
 
     % tic
@@ -37,7 +44,12 @@ for iter = 1:MAX_ITER
     z=wthresh(Dx-u,'s',lambda/rho);
     % toc
 
-    u= u + z - D*x;
+    u= u + z - Dx;
+
+    % update rho
+    if norm(z-Dx)>0.8*norm(zold-D*xold) % 0<alpha<1
+        rho=2*rho; % gamma=2
+    end
 
     % convergence
     relchg=max(norm(x-xold),norm(z-zold));
