@@ -51,9 +51,8 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     SparseMatrix<double> A(n*dim,total_pair);
     A.reserve(VectorXi::Constant(total_pair,k+1)); //预分配空间
 
-
     //计算平均边长
-    int kk=4;
+    int kk=6; //curve实验里用两个点计算平均边长，point cloud里用4-6个点
     double av_len=0.0;
     for (int i=0;i<n;i++){
         double av_len_p=0.0;
@@ -61,10 +60,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         std::vector<int> pointIdxNKNSearch(kk);
         std::vector<float> pointNKNSquaredDistance(kk);
         kdtree.nearestKSearch (cloud->points[i], kk+1, pointIdxNKNSearch, pointNKNSquaredDistance); //排除当前点自己
-        for (int j=0;j<(int)pointNKNSquaredDistance.size();j++)
+        for(int j=0; j < pointNKNSquaredDistance.size(); j++)
         {
-            if (pointIdxNKNSearch[j]==i)
-            {
+            if(pointIdxNKNSearch[j]==i){
                 continue;
             }
             av_len_p+=sqrt(pointNKNSquaredDistance[j]);
@@ -75,7 +73,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     av_len/=n;
     printf("av_len:%f\n",av_len);
 
-    double sigma=av_len;
+    double sigma=2*av_len;
 
     StopWatch timer;
     double t;
@@ -91,6 +89,20 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
         int kn=pointNKNSquaredDistance.size();
         assert(kn==k+1);
+
+        // for ith point, var should be normalized
+        double tv=0;
+        for(int j=0;j<kn;j++){
+            int jidx=pointIdxNKNSearch[j];
+            if ( jidx==i )
+            {
+                continue;
+            }
+            pcl::PointXYZ tp(query_point.x-cloud->points[jidx].x,query_point.y-cloud->points[jidx].y,query_point.z-cloud->points[jidx].z); 
+            double dis=sqrt(tp.x*tp.x+tp.y*tp.y+tp.z*tp.z);
+            double var=exp(-dis*dis/(sigma*sigma));
+            tv+=var;
+        }
 
         // if the angle between ni and nj is large, then we dont add this edge
         int jc=0;
@@ -109,12 +121,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             double dis=sqrt(tp.x*tp.x+tp.y*tp.y+tp.z*tp.z);
             // printf("dis:%f\n",dis);
             double var=exp(-dis*dis/(sigma*sigma));
-            // printf("var:%f\n",var);
+            // var=var/tv; % 这个貌似不能加，加了法矢、位置都不对了
             // printf("var:%f\n",var);
             for(int dd=0;dd<dim;++dd){
                 int col=(i*k+jc)*dim+dd; //这里不能用j，因为有一个continue的，j还是会++
                 A.insert(jidx*dim+dd,col)=-var;
                 A.insert(i*dim+dd,col)=var;
+
+                // A.insert(jidx*dim+dd,col)=-1;
+                // A.insert(i*dim+dd,col)=1;
                 // printf("inserting to A %d col\n",col);
             }
             jc++;

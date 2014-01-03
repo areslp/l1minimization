@@ -1,7 +1,8 @@
 clear all;
 close all;
 
-data=load('fandisk.xyzn');
+% data=load('fandisk.xyzn');
+data=load('buddha.xyzn');
 % data=load('noise_0.5_fandisk.xyzn');
 % data=load('noise_0.5_fandisk2.xyzn');
 % data=load('noise_outliers_0.5_fandisk.xyzn');
@@ -11,7 +12,6 @@ normals = normals./repmat(sqrt(sum(normals.^2,2)),1,size(normals,2));
 k=6;
 % lambda=0.25; % 无噪声
 lambda=0.25; % 0.5噪声
-
 
 % correct normal
 % cdata=load('standard_normal.xyzn');
@@ -28,16 +28,61 @@ lambda=0.25; % 0.5噪声
 % obj=sum(obj);
 % fprintf(2,'obj of correct normal is %f\n',obj);
 
-
 % disp('input data');
-% B=construct_Adj_cvx(points,normals,k,false); % B is the adjacent matrix
-% S=B*normals;
-% obj=sqrt(sum(S.^2,2));
+% B=kdtree_adj(points,k); % B is the adjacent matrix
+n=size(points,1);
+dim=size(points,2);
+tic
+dim=1;
+[i,j,v,E]=compute_AE(points,normals,k,dim); % k变化了，需要重新计算
+E=E+1;
+A=sparse(i+1,j+1,v,n*dim*k,n*dim);
+t=toc;
+fprintf(1,'compute AE takes:%f\n',t);
+
+W=compute_weight(points,normals,E);
+% D=diag(W)*A;
+D=A;
+S=D*normals;
+obj=sqrt(sum(S.^2,2));
+% 截到范围0-1
+obj(find(obj>1))=1;
+centers = 0:0.01:1;
+counts = hist(obj,centers);
+% pcts = 100 * counts / sum(counts);
+pcts = counts / sum(counts);
+figure;
+bar(centers,pcts);
+ylabel('%');
+axis([0 1 0 1]);
+axis tight;
+set(gcf, 'Color', 'w');
+
+
+D=diag(W)*A;
+% D=A;
+S=D*normals;
+obj=sqrt(sum(S.^2,2));
+% 截到范围0-1
+obj(find(obj>1))=1;
+centers = 0:0.01:1;
+counts = hist(obj,centers);
+% pcts = 100 * counts / sum(counts);
+pcts = counts / sum(counts);
+figure;
+bar(centers,pcts);
+ylabel('%');
+axis([0 1 0 1]);
+axis tight;
+set(gcf, 'Color', 'w');
+
+
 % figure;
-% hist(obj,20);
+% hist(obj,100);
 % title('input normal');
 % obj=sum(obj);
 % fprintf(2,'obj of pca normal is %f\n',obj);
+return;
 
 % fprintf(1,'point size is %d\n',size(points,1));
 

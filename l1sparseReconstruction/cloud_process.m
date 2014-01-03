@@ -1,6 +1,6 @@
 function [points,normals] = cloud_process(points,normals,H)
-k=4;
-lambda=1;
+k=6;
+lambda=10;
 n=size(points,1);
 dim=size(points,2);
 
@@ -13,8 +13,11 @@ fprintf(1,'compute AE takes:%f\n',t);
 
 % ==========================================================================================
 % ADMM solver, no ||N_in^i-N_out^i||\leq gamma constraints
-normals = normalOpt(points, normals, lambda, k, false, A , E, H);
-normals = normalize_normals(normals);
+
+% normals = normalOpt(points, normals, lambda, k, false, A , E, H);
+% normals = normalize_normals(normals);
+
+% reweighted
 for i=1:1
     normals = normalOpt(points, normals, lambda, k, true, A, E, H);
     normals = normalize_normals(normals);
@@ -25,7 +28,7 @@ write_mesh(points,normals,'out_normal.xyzn');
 return;
 
 % position optimization
-lambda=0.2;
+lambda=10;
 [points] = optimizePos(points, normals, k, lambda, A, E);
 
 % output

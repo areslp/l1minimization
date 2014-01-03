@@ -4,11 +4,11 @@ t_start = tic;
 % Global constants and defaults
 
 QUIET    = 0;
-MAX_ITER = 1000;
+MAX_ITER = 100;
 RELPRI  = 0;
 RELDUAL   = 0;
-ABS=1e-2;
-REL=1e-2;
+ABS=1e-5;
+REL=1e-5;
 % Data preprocessing
 [m,n]=size(D);
 
@@ -31,7 +31,8 @@ for iter = 1:MAX_ITER
     xold=x;
     R=(rho2*(b+y-u2)+rho1*Dt*(z+u1));
     x=linfactor(F,R);
-    % x=(rho2*I+rho1*DtD);
+    % L=rho2*I+rho1*DtD;
+    % x=L\R;
 
     Dx=D*x;
     zold = z;

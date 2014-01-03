@@ -43,7 +43,8 @@ disp(['size D:' num2str(size(D))]);
 W=W';
 
 A=W*D;
-
+disp(['size A:' num2str(size(A))]);
+At=A';
 % A的计算方法
 % tic
 % for i=1:k
@@ -54,25 +55,28 @@ A=W*D;
 % end
 % toc
 
-AtA=A'*A;
+AtA=At*A;
 
 % ADMM solver
 
-rho = 10;
+rho = 1;
 x = zeros(n,1);
 z = zeros(kn,1);
 u = zeros(kn,1);
 
 bf=norm(b,'fro');
-% T1=speye(n)+rho*AtA;
-
+L=speye(n)+rho*AtA;
+F=linfactor(L);
 for iter = 1:MAX_ITER
     zold=z;
     z=wthresh(A*x-u,'s',lambda/rho);
 
     xold = x;
     % x=T1\(b+(rho*A'*(z+u)));
-    x=(speye(n)+rho*AtA)\(b+(rho*A'*(z+u)));
+    % x=(speye(n)+rho*AtA)\(b+(rho*At*(z+u)));
+    R=b+rho*At*(z+u);
+    % x=L\R;
+    x=linfactor(F,R);
 
     u= u + z - A*x;
 

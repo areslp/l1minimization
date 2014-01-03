@@ -3,7 +3,7 @@ t_start = tic;
 % Global constants and defaults
 
 QUIET    = 0;
-MAX_ITER = 1000;
+MAX_ITER = 200;
 RELTOL  = 1e-5;
 RELCHG   = 1e-5;
 % Data preprocessing
@@ -11,7 +11,9 @@ RELCHG   = 1e-5;
 % number of subsystems
 N = m/dim;
 % ADMM solver
-rho = 1;
+rho = 20;
+
+bf=norm(b,'fro');
 
 x = zeros(n,1);
 z = zeros(m,1);
@@ -25,6 +27,7 @@ F=linfactor(L);
 for iter = 1:MAX_ITER
     % x-update (to be done in parallel)
     xold=x;
+    % L=I+rho*DtD;
     R=b+rho*Dt*(z+u);
     % x=L\R;
     x=linfactor(F,R);
@@ -38,8 +41,8 @@ for iter = 1:MAX_ITER
     u= u + z - Dx;
 
     % convergence
-    relchg=max(norm(x-xold),norm(z-zold));
-    reltol=norm(Dx-z);
+    relchg=max(norm(x-xold),norm(z-zold))/bf;
+    reltol=norm(Dx-z)/bf;
 
     fprintf(1,'iter:%d, relchg:%f, reltol:%f\n',iter,relchg,reltol);
     
@@ -47,6 +50,7 @@ for iter = 1:MAX_ITER
         break;
     end
 
+    % rho=1.3*rho;
 end
 
 if ~QUIET

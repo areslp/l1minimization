@@ -1,6 +1,7 @@
 function [W] = compute_weight(points,normals,E)
 n=size(points,1);
 dim=size(points,2);
+% dim=1;
 k=size(E,1)/(n*dim);
 % compute W
 sigma = 10 / 180 * pi;

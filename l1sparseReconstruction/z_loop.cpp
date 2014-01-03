@@ -90,7 +90,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 	for (int i=0;i<N;i++)
 	{
         int idx=i*dim;
-        get_sub_vec(idx,pB,dim,b);
+        get_sub_vec(idx,pB,dim,b); //取B的第i列
         vst(kappa,b,xx,dim);
         set_sub_vec(xx,pzz,idx,dim);
     }

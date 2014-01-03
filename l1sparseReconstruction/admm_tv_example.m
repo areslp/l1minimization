@@ -70,8 +70,8 @@ input(floor(N/4):ceil(3*N/4),:) = 1.0;  % make a center region at 1.0
 % plot( input, 'b-+' );
 % hold on;
 % blur = M * input + noise*(randn(N,1));  % blur the input by the psf
-blur = M * input;  % blur the input by the psf
-% blur = input + noise*(randn(N,1));  % blur the input by the psf
+% blur = M * input;  % blur the input by the psf
+blur = input + noise*(randn(N,1));  % blur the input by the psf
 % M=eye(size(M)); % TODO: 测试不加blur时，是否会出现smooth
 % plot(blur,'.-g');
 % hold off;
@@ -85,18 +85,30 @@ A = sparse( -diag( ones(N,1), 0 ) + diag( ones(N-1,1), 1 ) );
 A(N,N-1)=1; % use a backward difference for the final point
 
 % 测试自己写的带H的版本
-% lambda=1; % tvl2_h lambda=0.2, tvl1_h lambda=1
-% x=tvl1_total_variation_vec_H(blur,lambda,A,M);
-% % x=tvl2_total_variation_vec_H(blur,lambda,A,M);
-% figure;
-% hold on;
+lambda=0.3; % tvl2_h lambda=0.2, tvl1_h lambda=1
+% xx=tvl1_total_variation_vec_H(blur,lambda,A,M);
+xx=tvl2_total_variation_vec(blur,lambda,A);
+figure;
+hold on;
 % plot( blur, 'r-o' );
-% plot( x, 'b-o' );
-% hold off;
+plot( xx, 'b-o' );
+axis tight;
+axis([0 100 -0.2 1.2]);
+set(gcf, 'Color', 'w');
+hold off;
+figure;
+hold on;
+plot( blur, 'r-o' );
+% plot( xx, 'b-o' );
+axis tight;
+axis([0 100 -0.2 1.2]);
+set(gcf, 'Color', 'w');
+hold off;
+return;
 
 % 测试自己代码是否会有模糊的效果
-lambda=0.2;
-xx=tvl2_total_variation_vec_H(blur,lambda,A,M);
+% lambda=0.2;
+% xx=tvl2_total_variation_vec_H(blur,lambda,A,M);
 % x=tvl2_total_variation_vec(blur,lambda,A);
 
 

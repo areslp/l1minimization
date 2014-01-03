@@ -3,7 +3,7 @@ t_start = tic;
 % Global constants and defaults
 
 QUIET    = 0;
-MAX_ITER = 5000;
+MAX_ITER = 200;
 RELPRI  = 0;
 RELDUAL   = 0;
 ABS=1e-5;
@@ -35,17 +35,17 @@ for iter = 1:MAX_ITER
 
     u= u + z - Dx;
     % update rho
-    if norm(z-Dx)>0.8*norm(zold-D*xold) % 0<alpha<1, alpha=0.8
-        rho=2*rho; % gamma=2
-    end
+    % if norm(z-Dx)>0.8*norm(zold-D*xold) % 0<alpha<1, alpha=0.8
+        % rho=2*rho; % gamma=2
+    % end
 
     % convergence
     relchg=max(norm(x-xold),norm(z-zold));
     relpri=norm(z-Dx);
 
-    % if norm(z-Dx)>0.9*norm(zold-D*xold)
-        % rho=1.9*rho; 
-    % end
+    if norm(z-Dx)>0.9*norm(zold-D*xold)
+        rho=1.9*rho; 
+    end
 
     fprintf(1,'relchg:%f, relpri:%f\n',relchg,relpri);
     

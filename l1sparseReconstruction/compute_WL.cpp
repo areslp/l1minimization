@@ -21,33 +21,33 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;
     kdtree.setInputCloud(cloud);
     //计算平均边长
-    // int kk=3;
-    // double av_len=0.0;
-    // for (int i=0;i<n;i++){
-        // double av_len_p=0.0;
-        // // get k-nearest neighbors
-        // std::vector<int> pointIdxNKNSearch(kk);
-        // std::vector<float> pointNKNSquaredDistance(kk);
-        // kdtree.nearestKSearch (cloud->points[i], kk+1, pointIdxNKNSearch, pointNKNSquaredDistance); //排除当前点自己
-        // for (int j=0;j<(int)pointNKNSquaredDistance.size();j++)
-        // {
-            // if (pointIdxNKNSearch[j]==i)
-            // {
-                // continue;
-            // }
-            // av_len_p+=pointNKNSquaredDistance[j];
-        // }
-        // av_len_p/=kk;
-        // av_len+=av_len_p;
-    // }
-    // av_len/=n;
-    // printf("av_len:%f\n",av_len);
+    int kk=6; //多用几个点算出来的平均边长在噪声情况下更稳定
+    double av_len=0.0;
+    for (int i=0;i<n;i++){
+        double av_len_p=0.0;
+        // get k-nearest neighbors
+        std::vector<int> pointIdxNKNSearch(kk);
+        std::vector<float> pointNKNSquaredDistance(kk);
+        kdtree.nearestKSearch (cloud->points[i], kk+1, pointIdxNKNSearch, pointNKNSquaredDistance); //排除当前点自己
+        for (int j=0;j<(int)pointNKNSquaredDistance.size();j++)
+        {
+            if (pointIdxNKNSearch[j]==i)
+            {
+                continue;
+            }
+            av_len_p+=pointNKNSquaredDistance[j];
+        }
+        av_len_p/=kk;
+        av_len+=av_len_p;
+    }
+    av_len/=n;
+    printf("av_len:%f\n",av_len);
 
     int nnz=(k+1)*Asize;
     SparseMatrix<double> A(Asize,Asize);
     A.reserve(VectorXi::Constant(Asize,k+1)); //预分配空间
 
-    // double sigma=2*av_len;
+    double sigma=2*av_len;
     StopWatch timer;
     double t;
     omp_set_num_threads(4);
@@ -75,6 +75,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         for(int j=0;j<kn;j++){
             int jidx=pointIdxNKNSearch[j];
             // float v=pointNKNSquaredDistance[j];
+            // v=exp(-v*v/(sigma*sigma));
             // v=v/sum;
             for(int dd=0;dd<dim;++dd){
                 // insert rows for each dim
