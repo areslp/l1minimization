@@ -18,3 +18,19 @@
 *.ply
 *.xyzn
 *.xyznq
+*.off
+*.wrl
+
+# image files
+*.eps
+*.fig
+*.png
+*.bmp
+*.tiff
+
+
+# binary files
+*.exe
+*.mexa64
+*.mexw64
+*.dll
