@@ -5,7 +5,7 @@ n=size(points,1);
 dim=size(points,2);
 
 tic
-[i,j,v,E]=compute_AE(points,normals,k,3); % k变化了，需要重新计算
+[i,j,v,E]=compute_AE(points,normals,k,3); %% 如果k变化，需要重新计算
 E=E+1;
 A=sparse(i+1,j+1,v,n*dim*k,n*dim);
 t=toc;
