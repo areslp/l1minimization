@@ -77,14 +77,13 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     StopWatch timer;
     double t;
-    // omp_set_num_threads(4);
-    // #pragma omp parallel for
+    omp_set_num_threads(4);
+    #pragma omp parallel for
     for(int i=0;i<n;i++){
         // timer.reset();
         std::vector<int> pointIdxNKNSearch(k);
         std::vector<float> pointNKNSquaredDistance(k);
         pcl::PointXYZ query_point=cloud->points[i];
-        // printf("query_point: %f, %f, %f\n",query_point.x,query_point.y,query_point.z);
         kdtree.nearestKSearch (query_point, k+1, pointIdxNKNSearch, pointNKNSquaredDistance); 
 
         int kn=pointNKNSquaredDistance.size();
@@ -104,14 +103,9 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             tv+=var;
         }
 
-        // if the angle between ni and nj is large, then we dont add this edge
         int jc=0;
         for(int j=0;j<kn;j++){
             int jidx=pointIdxNKNSearch[j];
-            // Eigen::Vector3f ni(cloudN->points[i].x,cloudN->points[i].y,cloudN->points[i].z);
-            // Eigen::Vector3f nj(cloudN->points[jidx].x,cloudN->points[jidx].y,cloudN->points[jidx].z);
-            // if (ni.dot(nj)<0)
-                // continue;
             // 跳过当前点
             if ( jidx==i )
             {
@@ -119,17 +113,12 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
             }
             pcl::PointXYZ tp(query_point.x-cloud->points[jidx].x,query_point.y-cloud->points[jidx].y,query_point.z-cloud->points[jidx].z); 
             double dis=sqrt(tp.x*tp.x+tp.y*tp.y+tp.z*tp.z);
-            // printf("dis:%f\n",dis);
             double var=exp(-dis*dis/(sigma*sigma));
-            // var=var/tv; % 这个貌似不能加，加了法矢、位置都不对了
-            // printf("var:%f\n",var);
+            // var=var/tv; // 对第i点进行归一化，这个貌似不能加，加了法矢、位置都不对了
             for(int dd=0;dd<dim;++dd){
                 int col=(i*k+jc)*dim+dd; //这里不能用j，因为有一个continue的，j还是会++
                 A.insert(jidx*dim+dd,col)=-var;
                 A.insert(i*dim+dd,col)=var;
-
-                // A.insert(jidx*dim+dd,col)=-1;
-                // A.insert(i*dim+dd,col)=1;
                 // printf("inserting to A %d col\n",col);
             }
             jc++;

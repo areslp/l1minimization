@@ -1,15 +1,7 @@
 clear all;
 close all;
 
-[points,normals]=mesh_import('noise_0.5_fandisk2.xyzn');
-% [points,normals]=mesh_import('noise_0.5_mechpart.xyzn');
-% [points,normals]=mesh_import('noise_0.5_oilpmp.xyzn');
-% [points,normals]=mesh_import('noise_0.5_screwdriver.xyzn'); % 螺丝刀没法处理，太尖
-% [points,normals]=mesh_import('noise_0.1_maxplanck.xyzn');
-% [points,normals]=mesh_import('noise_0.2_bunny.xyzn');
-% [points,normals]=mesh_import('noise_0.5_double-torus2.xyzn');
-% [points,normals]=mesh_import('ToyTurtle.xyzn');
-% [points,normals]=mesh_import('noise_0.1_hand.xyzn');
+[points,normals]=mesh_import('paper_data/noise_0.5_fandisk2.xyzn');
 
 %% smooth normal
 
